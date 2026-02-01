@@ -18,4 +18,7 @@ Small project to learn basics of airflow and etl pipeline creation
 14. remove triggerer in compose
 15. add .gitignore + api-key
 16. add make_df
-17. 
+17. add retrieval time + pytz for timezone
+18. add retrieval date
+19. added DB
+20. 
