@@ -1,10 +1,12 @@
 from airflow import DAG
 from datetime import datetime
+import pytz
 import requests
 from airflow.operators.python import PythonOperator
 from dotenv import load_dotenv
 import os
 import pandas as pd
+import sqlite3
 
 load_dotenv("../.env")  # Lädt die .env-Datei
 api_key = os.getenv("TANKERKOENIG_API_KEY")
@@ -26,12 +28,20 @@ def make_df():
 
     data = get_data()
     tankstellen = data["stations"]
-    print("Tankstellen-Daten:", tankstellen)
-
     df = pd.DataFrame(tankstellen)
-    print("DataFrame erstellt: Header", df.head()) 
+
+    df["retrieval_time"] = datetime.now(pytz.timezone("Europe/Berlin")).strftime("%H:%M")
+    df["retrieval_date"] = datetime.now().date()
+
     return df
 
+def write_db():
+    conn = sqlite3.connect("tankstellen.db")
+    df = make_df()
+    df.to_sql("tankstellen", conn, if_exists="append", index=False)
+    historische_daten = pd.read_sql('SELECT * FROM tankstellen', conn)
+    print(historische_daten)
+    conn.close()
 
 
 with DAG(
@@ -49,4 +59,8 @@ with DAG(
         task_id="make_df",
         python_callable=make_df
         )
-    task_get_data >> task_make_df
+    task_write_db = PythonOperator(
+        task_id="write_db",
+        python_callable=write_db
+        )
+    task_get_data >> task_make_df >> task_write_db
