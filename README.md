@@ -16,3 +16,6 @@ Small project to learn basics of airflow and etl pipeline creation
 12. delete the airflow version in it
 13. create requirements
 14. remove triggerer in compose
+15. add .gitignore + api-key
+16. add make_df
+17. 
