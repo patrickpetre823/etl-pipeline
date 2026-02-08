@@ -50,6 +50,7 @@ Small project to learn basics of airflow and etl pipeline creation
         ... weitere Tankstellen
     ]
 }
-                    
+23. Added XCom (carefull: airflow 2.0+ uses context not kwargs)
+24.                     
 
 
