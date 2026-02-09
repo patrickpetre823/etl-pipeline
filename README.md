@@ -51,6 +51,12 @@ Small project to learn basics of airflow and etl pipeline creation
     ]
 }
 23. Added XCom (carefull: airflow 2.0+ uses context not kwargs)
-24.                     
+24. Google CLoud Migration
+        create e2 instance (Ubunut, HTTPS possible)
+        Generating ssh key manually -> ssh-keygen -t rsa -f ~/.ssh/FILENAME -C USERNAME
+        adding public key to gcp
+        connecting ssh username@external-ip-adress
+        installing docker https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository
+
 
 
