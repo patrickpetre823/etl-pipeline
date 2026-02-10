@@ -62,7 +62,7 @@ Small project to learn basics of airflow and etl pipeline creation
 27. starting docker compose
 28. ERROR
 29. Create another VM but more ram and cpu
-30. 
+30. Now works but task with database throws error, probabyl bc db is not nitialized
 https://medium.com/@kwattrapuranjay/apache-airflow-on-google-cloud-vm-a-complete-guide-with-custom-mysql-database-redis-caching-and-c00d1fd86cf2
 
 
