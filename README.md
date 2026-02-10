@@ -57,6 +57,15 @@ Small project to learn basics of airflow and etl pipeline creation
         adding public key to gcp
         connecting ssh username@external-ip-adress
         installing docker https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository
+25. cloning github repo to vm
+26. adding user to github group: sudo usermod -aG docker $USER
+27. starting docker compose
+28. ERROR
+29. Create another VM but more ram and cpu
+30. 
+https://medium.com/@kwattrapuranjay/apache-airflow-on-google-cloud-vm-a-complete-guide-with-custom-mysql-database-redis-caching-and-c00d1fd86cf2
+
+
 
 
 
