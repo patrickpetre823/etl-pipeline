@@ -7,7 +7,6 @@ from dotenv import load_dotenv
 import os
 import pandas as pd
 import sqlite3
-from airflow.providers.postgres.hooks.postgres import PostgresHook
 
 load_dotenv("../.env")  # Lädt die .env-Datei
 api_key = os.getenv("TANKERKOENIG_API_KEY")
@@ -43,17 +42,12 @@ def make_df(**context):
     df["retrieval_time"] = datetime.now(pytz.timezone("Europe/Berlin")).strftime("%H:%M")
     df["retrieval_date"] = datetime.now().date()
 
-    # Write to postgres DB in GCP
-    hook = PostgresHook(postgres_conn_id='gcp_postgres')  # Name deiner Airflow-Connection
-    conn = hook.get_conn()
-    cursor = conn.cursor()
-
-    # Write to database locally
-    #conn = sqlite3.connect("tankstellen.db")
-    #df.to_sql("tankstellen", conn, if_exists="append", index=False)
-    #historische_daten = pd.read_sql('SELECT * FROM tankstellen', conn)
-    #print(historische_daten)
-    #conn.close()
+    # Write to database
+    conn = sqlite3.connect("tankstellen.db")
+    df.to_sql("tankstellen", conn, if_exists="append", index=False)
+    historische_daten = pd.read_sql('SELECT * FROM tankstellen', conn)
+    print(historische_daten)
+    conn.close()
 
     return df
 

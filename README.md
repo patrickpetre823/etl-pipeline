@@ -79,9 +79,8 @@ https://medium.com/@kwattrapuranjay/apache-airflow-on-google-cloud-vm-a-complete
 38. change connection type from https to ssh
         git remote set-url origin git@github.com:patrickpetre823/etl-pipeline.git
 
-
-
-
+36. 
+>>>>>>> afdc256 (Update DAG and clean up pycache)
 
 
 
