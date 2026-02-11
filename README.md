@@ -72,7 +72,14 @@ https://medium.com/@kwattrapuranjay/apache-airflow-on-google-cloud-vm-a-complete
         sudo chown -R patrickpetre823:patrickpetre823 /home/patrickpetre823/etl-pipeline/dags/
 
 
-36. 
+36. add git user and email to my config:
+        git config --global user.name "Dein GitHub Anzeigename"
+        git config --global user.email "Deine GitHub E-Mail"
+37. add ssh. key on vm ssh-keygen -t ed25519 -C "deine_github_email@example.com" and insert public key into github gcp/ssh keys
+38. change connection type from https to ssh
+        git remote set-url origin git@github.com:patrickpetre823/etl-pipeline.git
+
+
 
 
 
