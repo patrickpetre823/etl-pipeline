@@ -64,6 +64,15 @@ Small project to learn basics of airflow and etl pipeline creation
 29. Create another VM but more ram and cpu
 30. Now works but task with database throws error, probabyl bc db is not nitialized
 https://medium.com/@kwattrapuranjay/apache-airflow-on-google-cloud-vm-a-complete-guide-with-custom-mysql-database-redis-caching-and-c00d1fd86cf2
+31. create sql instance in gcp + db
+32. create service account "cloud SQL Client"
+33. create another ssh key for ssh-remote connection inside of visual studio code
+        ssh-keygen -t rsa -b 4096 -C "my-mail@deine-email.de" locally and then put inside gcp vm (probabyl first key has wrong name or something)
+34. change owner of files to my user
+        sudo chown -R patrickpetre823:patrickpetre823 /home/patrickpetre823/etl-pipeline/dags/
+
+
+36. 
 
 
 
