@@ -83,7 +83,7 @@ https://medium.com/@kwattrapuranjay/apache-airflow-on-google-cloud-vm-a-complete
 37. Create VPC and activate service networking API
 38. private IPs activated for SQL-DB
 39. Create FW rule for sql db
-40. tested connection with psql from vm
+40. install psql & tested connection with psql from vm
 
 
 
