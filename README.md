@@ -79,8 +79,11 @@ https://medium.com/@kwattrapuranjay/apache-airflow-on-google-cloud-vm-a-complete
 38. change connection type from https to ssh
         git remote set-url origin git@github.com:patrickpetre823/etl-pipeline.git
 
-36. 
->>>>>>> afdc256 (Update DAG and clean up pycache)
+36. Update DAG and clean up pycache)
+37. Create VPC and activate service networking API
+38. private IPs activated for SQL-DB
+39. Create FW rule for sql db
+40. tested connection with psql from vm
 
 
 
