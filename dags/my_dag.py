@@ -6,10 +6,17 @@ from airflow.operators.python import PythonOperator
 from dotenv import load_dotenv
 import os
 import pandas as pd
-import sqlite3
+
+import psycopg2
+from psycopg2 import sql
+
+from sqlalchemy import create_engine
+
+
 
 load_dotenv("../.env")  # Lädt die .env-Datei
 api_key = os.getenv("TANKERKOENIG_API_KEY")
+db_password = os.getenv("DB_PASSWORD")
 print("API-Key geladen:", api_key is not None)  # Sollte True sein
 
 def get_data(**context):
@@ -36,18 +43,42 @@ def make_df(**context):
         print("Keine Daten gefunden in XCom")
         return None
 
-    tankstellen = data["tankstellen.db"]
+    tankstellen = data["stations"]  # Extrahiert die Liste der Tankstellen aus der API-Antwort
     df = pd.DataFrame(tankstellen)
 
     df["retrieval_time"] = datetime.now(pytz.timezone("Europe/Berlin")).strftime("%H:%M")
     df["retrieval_date"] = datetime.now().date()
 
-    # Write to database
-    conn = sqlite3.connect("tankstellen.db")
-    df.to_sql("tankstellen", conn, if_exists="append", index=False)
-    historische_daten = pd.read_sql('SELECT * FROM tankstellen', conn)
-    print(historische_daten)
-    conn.close()
+
+    engine = create_engine(
+        f"postgresql+psycopg2://postgres:{db_password}@10.70.112.3/gasstation-db")
+
+    # Verbindung zu Google Cloud SQL
+    #conn = psycopg2.connect(
+    #    host="10.70.112.3",                 # IP SQL-Instance
+    #    database="gasstation-db",           # DB Name
+    #    user="postgres",                    # Username
+    #    password=os.getenv("DB_PASSWORD")   # Password aus .env
+    #)
+
+    df_tankstellen = df[["id", "name", "brand", "street", "place", "lat", "lng", "dist", "houseNumber", "postCode"]]
+    df_abfragen = df[["id", "diesel", "e5", "e10", "isOpen","retrieval_time", "retrieval_date"]]
+    df_abfragen = df_abfragen.rename(columns={"id": "tankstellen_id", "isOpen": "isopen"})  # Umbenennen der Spalten für 
+    die Abfragen-Tabelle
+    
+    df_abfragen.to_sql(
+        "abfragen", 
+        engine, 
+        if_exists="append", 
+        index=False)  
+
+    df_tankstellen.to_sql(
+        "tankstellen", 
+        engine, 
+        if_exists="append", 
+        index=False)
+
+    #conn.close()  # Verbindung schließen
 
     return df
 
