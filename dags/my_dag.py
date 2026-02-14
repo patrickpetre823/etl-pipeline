@@ -69,7 +69,6 @@ def make_df(**context):
     df_abfragen.to_sql(
         "abfragen", 
         engine, 
-        if_exists="append", 
         index=False)  
 
     df_tankstellen.to_sql(
