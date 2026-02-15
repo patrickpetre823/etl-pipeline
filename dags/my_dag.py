@@ -84,7 +84,7 @@ def make_df(**context):
 with DAG(
     "my_dag", 
     start_date=datetime(2025, 1, 25),
-    schedule="/30 * * * *",
+    schedule="0,30 * * * *",
     catchup=False) as dag:
 
     task_get_data = PythonOperator(
