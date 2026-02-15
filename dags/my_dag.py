@@ -7,10 +7,8 @@ from dotenv import load_dotenv
 import os
 import pandas as pd
 
-import psycopg2
-from psycopg2 import sql
-
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, Table, MetaData, insert
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 
 
 
@@ -53,31 +51,31 @@ def make_df(**context):
     engine = create_engine(
         f"postgresql+psycopg2://postgres:{db_password}@10.70.112.3/gasstation-db")
 
-    # Verbindung zu Google Cloud SQL
-    #conn = psycopg2.connect(
-    #    host="10.70.112.3",                 # IP SQL-Instance
-    #    database="gasstation-db",           # DB Name
-    #    user="postgres",                    # Username
-    #    password=os.getenv("DB_PASSWORD")   # Password aus .env
-    #)
 
     df_tankstellen = df[["id", "name", "brand", "street", "place", "lat", "lng", "dist", "houseNumber", "postCode"]]
+    df_tankstellen = df_tankstellen.rename(columns={"houseNumber": "housenumber", "postCode": "postcode"})  # Umbenennen der Spalten für die Tankstellen-Tabelle
     df_abfragen = df[["id", "diesel", "e5", "e10", "isOpen","retrieval_time", "retrieval_date"]]
-    df_abfragen = df_abfragen.rename(columns={"id": "tankstellen_id", "isOpen": "isopen"})  # Umbenennen der Spalten für 
-    die Abfragen-Tabelle
+    df_abfragen = df_abfragen.rename(columns={"id": "tankstellen_id", "isOpen": "isopen"})  # Umbenennen der Spalten für die Abfragen-Tabelle
     
+    
+    with engine.begin() as conn:
+        
+        metadata = MetaData()
+        tankstellen_table = Table("tankstellen", metadata, autoload_with=engine)
+
+        for _, row in df_tankstellen.iterrows():
+            stmt = pg_insert(tankstellen_table).values(**row.to_dict())
+            stmt = stmt.on_conflict_do_nothing()
+            conn.execute(stmt)
+ 
+
     df_abfragen.to_sql(
         "abfragen", 
-        engine, 
+        engine,
+        if_exists="append",
         index=False)  
 
-    df_tankstellen.to_sql(
-        "tankstellen", 
-        engine, 
-        if_exists="append", 
-        index=False)
 
-    #conn.close()  # Verbindung schließen
 
     return df
 
