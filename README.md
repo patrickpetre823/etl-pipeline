@@ -22,34 +22,62 @@ In this project I built an automated data pipeline, that ingests data from an pu
 The data used for this project comes from tankeroenig API https://creativecommons.tankerkoenig.de/
 There are several API-Methods, while I used Method 2 for this project giving me price information on all gasstations in a certain radius.
 
-The JSON Structure of the API Response is shown here:
+## API Response Structure
+```json
 {
-    "ok": true,
-    "license": "CC BY 4.0 -  https:\/\/creativecommons.tankerkoenig.de",
-    "data": "MTS-K",
-    "status": "ok",
-    "stations": [
-        {                                                     Datentyp, Bedeutung
-            "id": "474e5046-deaf-4f9b-9a32-9797b778f047",   - UUID, eindeutige Tankstellen-ID
-            "name": "TOTAL BERLIN",                         - String, Name
-            "brand": "TOTAL",                               - String, Marke
-            "street": "MARGARETE-SOMMER-STR.",              - String, Straße
-            "place": "BERLIN",                              - String, Ort
-            "lat": 52.53083,                                - float, geographische Breite
-            "lng": 13.440946,                               - float, geographische Länge
-            "dist": 1.1,                                    - float, Entfernung zum Suchstandort in km
-            "diesel": 1.109,                                \
-            "e5": 1.339,                                     - float, Spritpreise in Euro
-            "e10": 1.319,                                   /
-            "isOpen": true,                                 - boolean, true, wenn die Tanke zum Zeitpunkt der
-                                                              Abfrage offen hat, sonst false
-            "houseNumber": "2",                             - String, Hausnummer
-            "postCode": 10407                               - integer, PLZ
-        },
-        ... weitere Tankstellen
-    ]
+  "ok": true,
+  "license": "CC BY 4.0 - https://creativecommons.tankerkoenig.de",
+  "data": "MTS-K",
+  "status": "ok",
+  "stations": [
+    {
+      "id": "474e5046-deaf-4f9b-9a32-9797b778f047",
+      "name": "TOTAL BERLIN",
+      "brand": "TOTAL",
+      "street": "MARGARETE-SOMMER-STR.",
+      "houseNumber": "2",
+      "place": "BERLIN",
+      "postCode": 10407,
+      "lat": 52.53083,
+      "lng": 13.440946,
+      "dist": 1.1,
+      "diesel": 1.109,
+      "e5": 1.339,
+      "e10": 1.319,
+      "isOpen": true
+    }
+  ]
 }
+```
 
+### Field Descriptions
+
+| Field | Type | Description |
+|---|---|---|
+| `ok` | boolean | `true` if the request was successful |
+| `license` | string | License information for the data |
+| `data` | string | Data source identifier |
+| `status` | string | Status of the response |
+| `stations` | array | List of gas stations matching the query |
+
+#### Station Object
+
+| Field | Type | Description |
+|---|---|---|
+| `id` | UUID | Unique identifier for the gas station |
+| `name` | string | Name of the gas station |
+| `brand` | string | Brand of the gas station |
+| `street` | string | Street name |
+| `houseNumber` | string | House number |
+| `place` | string | City |
+| `postCode` | integer | Postal code |
+| `lat` | float | Latitude |
+| `lng` | float | Longitude |
+| `dist` | float | Distance to the search location in km |
+| `diesel` | float | Diesel price in EUR |
+| `e5` | float | E5 petrol price in EUR |
+| `e10` | float | E10 petrol price in EUR |
+| `isOpen` | boolean | `true` if the station is currently open |
 
 
 
