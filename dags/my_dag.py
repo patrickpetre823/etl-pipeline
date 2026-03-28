@@ -2,19 +2,14 @@ from airflow import DAG
 from datetime import datetime
 import pytz
 import requests
-from airflow.operators.python import PythonOperator
+from airflow.providers.standard.operators.python import PythonOperator
 from dotenv import load_dotenv
 import os
 import pandas as pd
-
-from sqlalchemy import create_engine, Table, MetaData, insert
-from sqlalchemy.dialects.postgresql import insert as pg_insert
-
-
+import sqlite3
 
 load_dotenv("../.env")  # Lädt die .env-Datei
 api_key = os.getenv("TANKERKOENIG_API_KEY")
-db_password = os.getenv("DB_PASSWORD")
 print("API-Key geladen:", api_key is not None)  # Sollte True sein
 
 def get_data(**context):
@@ -34,6 +29,7 @@ def get_data(**context):
 
 def make_df(**context):
 
+    # Daten aus XCom laden und in Dataframe umwandeln
     ti  = context['ti']  # Task instance um XCOM zu verwenden
     data = ti.xcom_pull(key="api_response", task_ids="get_data")  # Holt die API-Antwort aus XCom
 
@@ -41,41 +37,23 @@ def make_df(**context):
         print("Keine Daten gefunden in XCom")
         return None
 
-    tankstellen = data["stations"]  # Extrahiert die Liste der Tankstellen aus der API-Antwort
-    df = pd.DataFrame(tankstellen)
+    gas_data = data["stations"]  # Extrahiert die Tankstellen-Daten aus der API-Antwort
+    df = pd.DataFrame(gas_data)
 
-    df["retrieval_time"] = datetime.now(pytz.timezone("Europe/Berlin")).strftime("%H:%M")
-    df["retrieval_date"] = datetime.now().date()
+    # Daten im Dataframe bereinigen und formatieren
+    df["retrieval_time"] = datetime.now(pytz.timezone("Europe/Berlin")).strftime("%H:%M")   # Fügt die aktuelle Uhrzeit hinzu
+    df["retrieval_date"] = datetime.now().date()                                            # Fügt das aktuelle Datum hinzu
 
+    df["e5"] = df["e5"].replace(None, 0).astype(float)  # Ersetzt None-Werte in der Spalte "e5" durch 0 und konvertiert in float (sollte bereits float sein, aber sicherheitshalber)
+    df["e10"] = df["e10"].replace(None, 0).astype(float)  
+    df["diesel"] = df["diesel"].replace(None, 0).astype(float)  
 
-    engine = create_engine(
-        f"postgresql+psycopg2://postgres:{db_password}@10.70.112.3/gasstation-db")
-
-
-    df_tankstellen = df[["id", "name", "brand", "street", "place", "lat", "lng", "dist", "houseNumber", "postCode"]]
-    df_tankstellen = df_tankstellen.rename(columns={"houseNumber": "housenumber", "postCode": "postcode"})  # Umbenennen der Spalten für die Tankstellen-Tabelle
-    df_abfragen = df[["id", "diesel", "e5", "e10", "isOpen","retrieval_time", "retrieval_date"]]
-    df_abfragen = df_abfragen.rename(columns={"id": "tankstellen_id", "isOpen": "isopen"})  # Umbenennen der Spalten für die Abfragen-Tabelle
-    
-    
-    with engine.begin() as conn:
-        
-        metadata = MetaData()
-        tankstellen_table = Table("tankstellen", metadata, autoload_with=engine)
-
-        for _, row in df_tankstellen.iterrows():
-            stmt = pg_insert(tankstellen_table).values(**row.to_dict())
-            stmt = stmt.on_conflict_do_nothing()
-            conn.execute(stmt)
- 
-
-    df_abfragen.to_sql(
-        "abfragen", 
-        engine,
-        if_exists="append",
-        index=False)  
-
-
+    # Write to database
+    conn = sqlite3.connect("/opt/airflow/dags/tankstellen.db")
+    df.to_sql("tankstellen", conn, if_exists="append", index=False)
+    historische_daten = pd.read_sql('SELECT e5 FROM tankstellen', conn)
+    print(historische_daten)
+    conn.close()
 
     return df
 
@@ -84,7 +62,7 @@ def make_df(**context):
 with DAG(
     "my_dag", 
     start_date=datetime(2025, 1, 25),
-    schedule="0,30 * * * *",
+    schedule="5 * * * *",
     catchup=False) as dag:
 
     task_get_data = PythonOperator(
