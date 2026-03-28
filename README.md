@@ -167,7 +167,41 @@ Generate a separate SSH key locally for VS Code Remote SSH access and add it to 
 ```bash
    psql -h DB_PRIVATE_IP -U DB_USER -d DB_NAME
 ```
+## Local Data Migration
 
+To perform data analysis locally and reduce cloud costs, the database was migrated from GCP Cloud SQL to a local PostgreSQL instance running in Docker.
+
+### Steps
+
+1. Install PostgreSQL client (v18 to match the GCP instance):
+```bash
+   sudo sh -c 'echo "deb https://apt.postgresql.org/pub/repos/apt noble-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+   curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo tee /etc/apt/trusted.gpg.d/postgresql.asc
+   sudo apt update
+   sudo apt install -y postgresql-client-18
+```
+
+2. Dump the database directly from GCP Cloud SQL (public IP):
+```bash
+   pg_dump -h PUBLIC_SQL_IP -U postgres -d gasstation-db -f ~/dump.sql
+```
+
+3. Start a local PostgreSQL container:
+```bash
+   docker run --name pg-local \
+     -e POSTGRES_USER=postgres \
+     -e POSTGRES_PASSWORD=your_password \
+     -e POSTGRES_DB=gasstation-db \
+     -p 5432:5432 \
+     -d postgres:18
+```
+
+4. Load the dump into the local container:
+```bash
+   docker exec -i pg-local psql -U postgres -d gasstation-db < ~/dump.sql
+```
+
+> The `dump.sql` file is stored locally in `data/` but excluded from version control via `.gitignore`.
 ---
 
 ## Resources
