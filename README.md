@@ -11,7 +11,7 @@ In this project I built an automated data pipeline, that ingests data from an pu
 |-------------------------|------------------------------------------------------------------------|
 | Apache Airflow          | Orchestrating the ETL pipeline.                                        |
 | PostgreSQL              | Storing transformed data.                                              |
-| Docker                  | Containerizing Airflow for local testing.                              |
+| Docker                  | Containerizing Airflow                                                 |
 | Google Cloud Platform   |Hosting VMs and PostgreSQL instances.                                   |
 | Python                  | Scripting for ETL logic.                                               |
 
